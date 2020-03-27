@@ -26,7 +26,7 @@ const (
 	timeLayout = "Mon, 01/02/06, 03:04PM"
 )
 
-func (t *Tasks) Add(description, created string, completed bool) {
+func (t *Tasks) Add(description string) {
 	task := Task{Id: (*t).GetLastId() + 1, Description: description, Created: time.Now().Format(timeLayout), Completed: false}
 	*t = append(*t, task)
 	writeDb(t)
@@ -44,13 +44,14 @@ func (t *Tasks) Remove(Id int) {
 	task.Created = lastTask.Created
 	task.Description = lastTask.Description
 	(*t) = (*t)[:len(*t)-1]
+	writeDb(t)
 }
 
 //GetTask using id
 func (t *Tasks) GetTask(Id int) *Task {
-	for _, v := range *t {
+	for i, v := range *t {
 		if v.Id == Id {
-			return &v
+			return &((*t)[i])
 		}
 	}
 	fmt.Println("Task not found")
@@ -61,8 +62,8 @@ func (t *Tasks) GetTask(Id int) *Task {
 //SetComplete flag of id
 func (t *Tasks) SetComplete(Id int) {
 	task := t.GetTask(Id)
-	(*task).Completed = true
-
+	task.Completed = true
+	writeDb(t)
 }
 
 //Pending number of tasks
@@ -77,21 +78,21 @@ func (t *Tasks) Pending() int {
 }
 
 //GetLastId
-func (t Tasks) GetLastId() int {
-	totalTasks := len(t)
+func (t *Tasks) GetLastId() int {
+	totalTasks := len(*t)
 	if totalTasks <= 0 {
 		return 0
 	}
-	id := t[0].Id
-	for _, task := range t {
-		if id >= task.Id {
+	id := (*t)[0].Id
+	for _, task := range *t {
+		if id <= task.Id {
 			id = task.Id
 		}
 	}
 	return id
 }
 
-func readDb() Tasks {
+func ReadDb() Tasks {
 	dbFile, err := os.Open(dbFilePath())
 	if err != nil {
 		fmt.Println(err)
@@ -101,6 +102,9 @@ func readDb() Tasks {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+	if len(byteValue) <= 0 {
+		return nil
 	}
 	var tasks Tasks
 	err = json.Unmarshal(byteValue, &tasks)
