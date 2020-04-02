@@ -5,12 +5,21 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/fatih/color"
 	"github.com/shivamanipatil/GoTodo/taskmanager"
 )
 
 func drawTable(tasks *taskmanager.Tasks) {
+	var checkString string
 	for i := 0; i < len(*tasks); i++ {
-		fmt.Printf("%d, %s %s %t\n", (*tasks)[i].Id, (*tasks)[i].Description, (*tasks)[i].Created, (*tasks)[i].Completed)
+		if (*tasks)[i].Completed {
+			checkString = "[x]"
+		} else {
+			checkString = "[ ]"
+		}
+		yellow := color.New(color.FgYellow).SprintFunc()
+		magenta := color.New(color.FgMagenta).SprintFunc()
+		fmt.Printf("%d : %s %s %s\n", (*tasks)[i].Id, yellow(checkString), magenta((*tasks)[i].Created), (*tasks)[i].Description)
 	}
 }
 
