@@ -18,10 +18,10 @@ go build main.go
 `./main help` will display help menu. 
 
 ## To be added
-1. Google drive integration.
-1. Better UI?
-1. Run as a background process?
-1. Expose REST api?
+- [ ] Google drive integration.
+- [ ] Better UI?
+- [ ] Run as a background process?
+- [ ] Expose REST api?
 
 ## Made with
 https://github.com/fatih/color
