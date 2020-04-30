@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type (
@@ -75,6 +77,17 @@ func (t *Tasks) Pending() int {
 		}
 	}
 	return n
+}
+
+func (t *Tasks) ListPendingTasks() {
+	yellow := color.New(color.FgYellow).SprintFunc()
+	magenta := color.New(color.FgMagenta).SprintFunc()
+	checkString := "[ ]"
+	for _, v := range *t {
+		if !v.Completed {
+			fmt.Printf("%d : %s %s %s\n", v.Id, yellow(checkString), magenta(v.Created), v.Description)
+		}
+	}
 }
 
 //GetLastId
