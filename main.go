@@ -26,16 +26,20 @@ func drawTable(tasks *taskmanager.Tasks) {
 func helpMenu() {
 	fmt.Printf("  GoToDo - Simple CLI todo app in golang\n\n" +
 		"  USAGE\n" +
-		"	1) h/help -\n" +
-		"		Help menu\n\n" +
-		"	2) add {description} -\n" +
-		"		add task with description use without {}\n\n" +
-		"	3) delete id -\n" +
-		"		Delete task with given id\n\n" +
-		"	4) completed id -\n" +
-		"		Set completed for for given id\n\n" +
-		"	5) pending -\n" +
-		"		Printing number of pending tasks\n\n")
+		"\t1) help -\n" +
+		"\t\tHelp menu\n\n" +
+		"\t2) add {description} -\n" +
+		"\t\tadd task with description use without {}\n\n" +
+		"\t3) delete id -\n" +
+		"\t\tDelete task with given id\n\n" +
+		"\t4) completed id -\n" +
+		"\t\tSet completed for for given id\n\n" +
+		"\t5) pending -\n" +
+		"\t\tPrinting number of pending tasks\n\n" +
+		"\t6) list -\n" +
+		"\t\tPrints all tasks with id as first column\n\n" +
+		"\t7) listPending -\n" +
+		"\t\tPrints all pending tasks\n\n")
 
 }
 
@@ -58,6 +62,9 @@ func main() {
 		drawTable(&tasks)
 	} else if commandName == "pending" {
 		fmt.Println((&tasks).Pending())
+
+	} else if commandName == "listPending" {
+		(&tasks).ListPendingTasks()
 	} else {
 
 		if len(os.Args) < 3 {
