@@ -55,7 +55,7 @@ func (t *Tasks) Remove(Id int) {
 func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	cyan := color.New(color.FgCyan).SprintFunc()
-	f, err := os.Create("/temp/t.txt")
+	f, err := os.Create("t.txt")
 	if err != nil {
 		return fmt.Errorf("Couldn't create file for at job!")
 	}
@@ -79,7 +79,7 @@ func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
 	if err != nil {
 		return fmt.Errorf("Couldn't write notification command to text file!")
 	}
-	_, err = exec.Command("at", "-f", "/temp/t.txt", dateTime).Output()
+	_, err = exec.Command("at", "-f", "t.txt", dateTime).Output()
 	if err != nil {
 		return fmt.Errorf("Couldn't schedule at jobF!")
 	}
