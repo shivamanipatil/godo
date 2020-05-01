@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -49,6 +51,42 @@ func (t *Tasks) Remove(Id int) {
 	writeDb(t)
 }
 
+//Schedules task to at job
+func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
+	magenta := color.New(color.FgMagenta).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	f, err := os.Create("/temp/t.txt")
+	if err != nil {
+		return fmt.Errorf("Couldn't create file for at job!")
+	}
+	//Close and remove temp file
+	defer func() {
+		err := f.Close()
+		if err != nil {
+			log.Println("close:", err)
+		}
+		err = os.Remove(f.Name())
+		if err != nil {
+			log.Println("remove:", err)
+		}
+	}()
+	task := t.GetTask(Id)
+	if task == nil {
+		return fmt.Errorf("Task not found!")
+	}
+	taskDescription := task.Description
+	_, err = f.WriteString("notify-send Remainder " + "\"" + taskDescription + "\"")
+	if err != nil {
+		return fmt.Errorf("Couldn't write notification command to text file!")
+	}
+	_, err = exec.Command("at", "-f", "/temp/t.txt", dateTime).Output()
+	if err != nil {
+		return fmt.Errorf("Couldn't schedule at jobF!")
+	}
+	fmt.Printf("%v : %v\n", cyan("Your job is scheduled for"), magenta(dateTime))
+	return nil
+}
+
 //GetTask using id
 func (t *Tasks) GetTask(Id int) *Task {
 	for i, v := range *t {
@@ -56,8 +94,6 @@ func (t *Tasks) GetTask(Id int) *Task {
 			return &((*t)[i])
 		}
 	}
-	fmt.Println("Task not found")
-	os.Exit(1)
 	return nil
 }
 
@@ -80,9 +116,9 @@ func (t *Tasks) Pending() int {
 }
 
 func (t *Tasks) ListPendingTasks() {
+	checkString := "[ ]"
 	yellow := color.New(color.FgYellow).SprintFunc()
 	magenta := color.New(color.FgMagenta).SprintFunc()
-	checkString := "[ ]"
 	for _, v := range *t {
 		if !v.Completed {
 			fmt.Printf("%d : %s %s %s\n", v.Id, yellow(checkString), magenta(v.Created), v.Description)
