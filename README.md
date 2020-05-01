@@ -19,7 +19,7 @@ go build main.go
 
 ## To be added
 - [ ] Search using description.
-- [ ] Set cron jobs for notifications.
+- [x] Set at jobs for notifications.
 - [ ] Better UI?
 
 ## Made with
