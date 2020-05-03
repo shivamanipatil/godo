@@ -98,7 +98,7 @@ func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
 	}
 	_, err = exec.Command("at", "-f", "t.txt", dateTime).Output()
 	if err != nil {
-		return fmt.Errorf("Couldn't schedule at job!")
+		return fmt.Errorf("Couldn't schedule at job! Check if at is installed on system.")
 	}
 	return nil
 }
