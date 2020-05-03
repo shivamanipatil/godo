@@ -1,7 +1,7 @@
 # Godo
 Godo is simple CLI app to manage your todo tasks.
 
-# Requirements
+## Requirements
 Go >= 1.13 recommended.[notify-send](http://manpages.ubuntu.com/manpages/xenial/man1/notify-send.1.html) and [at](https://linux.die.net/man/1/at) should be installed for scheduling the reminder notifications.
 
 ## Features
