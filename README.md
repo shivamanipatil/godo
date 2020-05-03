@@ -2,11 +2,11 @@
 Godo is simple CLI app to manage your todo tasks.
 
 # Requirements
-Go >= 1.13 recommended.[notify-send](http://manpages.ubuntu.com/manpages/xenial/man1/notify-send.1.html) and [at](https://linux.die.net/man/1/at) should be installed for scheduling the remainder notifications.
+Go >= 1.13 recommended.[notify-send](http://manpages.ubuntu.com/manpages/xenial/man1/notify-send.1.html) and [at](https://linux.die.net/man/1/at) should be installed for scheduling the reminder notifications.
 
 ## Features
 * Add, update, removea and read tasks.
-* [At jobs](https://linux.die.net/man/1/at) can be created for sending remainder notification for a task at particular day and time.
+* [At jobs](https://linux.die.net/man/1/at) can be created for sending reminder notification for a task at particular day and time. This is send a desktop notification at specified time date with task description.
 * List of tasks, list of pending tasks, number of pending tasks.
 * Tasks are stored in .json format.
 
@@ -15,7 +15,7 @@ Go >= 1.13 recommended.[notify-send](http://manpages.ubuntu.com/manpages/xenial/
 ```git clone https://github.com/shivamanipatil/godo.git
 go build -o godo
 ```
-1. To make this binary executable from anywhere. Add following to .bashrc. E.g
+2. To make this binary executable from anywhere. Add following to .bashrc. E.g
 ```
 export PATH="$PATH:/home/shivamani/funprojects/godo/"
 ```
