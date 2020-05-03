@@ -25,6 +25,14 @@ type (
 	Tasks []Task
 )
 
+var (
+	magenta = color.New(color.FgMagenta).SprintFunc()
+	cyan    = color.New(color.FgCyan).SprintFunc()
+	white   = color.New(color.FgHiWhite).SprintFunc()
+	red     = color.New(color.FgHiRed).SprintFunc()
+	green   = color.New(color.FgHiGreen).SprintFunc()
+)
+
 const (
 	dbFileName = ".taskdb.json"
 	timeLayout = "Mon, 01/02/06, 03:04PM"
@@ -51,10 +59,19 @@ func (t *Tasks) Remove(Id int) {
 	writeDb(t)
 }
 
+//Update update the task of id with description
+func (t *Tasks) Update(id int, description string) error {
+	task := t.GetTask(id)
+	if task == nil {
+		return fmt.Errorf("Task doesn't exist")
+	}
+	task.Description = description
+	writeDb(t)
+	return nil
+}
+
 //ScheduleTask schedules a remainder using at job
 func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
-	magenta := color.New(color.FgMagenta).SprintFunc()
-	cyan := color.New(color.FgCyan).SprintFunc()
 	f, err := os.Create("t.txt")
 	if err != nil {
 		return fmt.Errorf("Couldn't create file for at job!")
@@ -81,13 +98,12 @@ func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
 	}
 	_, err = exec.Command("at", "-f", "t.txt", dateTime).Output()
 	if err != nil {
-		return fmt.Errorf("Couldn't schedule at jobF!")
+		return fmt.Errorf("Couldn't schedule at job!")
 	}
-	fmt.Printf("%v : %v\n", cyan("Your job is scheduled for"), magenta(dateTime))
 	return nil
 }
 
-//GetTask using id
+//GetTask returns task with given id if found else nil
 func (t *Tasks) GetTask(Id int) *Task {
 	for i, v := range *t {
 		if v.Id == Id {
@@ -126,7 +142,7 @@ func (t *Tasks) ListPendingTasks() Tasks {
 	return tasks
 }
 
-//GetLastId 
+//GetLastId
 func (t *Tasks) GetLastId() int {
 	totalTasks := len(*t)
 	if totalTasks <= 0 {
@@ -139,6 +155,24 @@ func (t *Tasks) GetLastId() int {
 		}
 	}
 	return id
+}
+
+//DrawTask draws a single task
+func (t *Task) DrawTask() {
+	var checkString string
+	if (*t).Completed {
+		checkString = "[x]"
+	} else {
+		checkString = "[ ]"
+	}
+	fmt.Printf("%3d  : %s %s %s\n", (*t).Id, cyan(checkString), magenta((*t).Created), white((*t).Description))
+}
+
+//DrawTable draws a table of Tasks
+func (t *Tasks) DrawTable() {
+	for i := 0; i < len(*t); i++ {
+		(*t)[i].DrawTask()
+	}
 }
 
 //ReadDb reads and returns Tasks

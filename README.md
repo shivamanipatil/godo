@@ -1,26 +1,24 @@
-# GoTodo
-
-GoToDo is simple CLI app to manage your todo list.
+# Godo
+Godo is simple CLI app to manage your todo tasks.
 
 ## Features
-* .json format is used for storing the tasks. 
-* Add, remove, mark as completed and list tasks.
-* Creation Date/time status is stored for each task.
-* Can mark a task as completed.
-* Can give number of pending tasks.
+* Add, update, removea andread tasks.
+* At jobs((man page)[https://linux.die.net/man/1/at]) can be created for sending remainder notification for a task at particular day and time.
+* List of tasks, list of pending tasks, number of pending tasks.
+* Tasks are stored in .json format.
 
 ## Steps 
-```git clone https://github.com/shivamanipatil/GoTodo.git
-go build main.go 
-./main
+1. Clone this repo and build the binary.
+```git clone https://github.com/shivamanipatil/godo.git
+go build -o godo
 ```
+1. To make this binary executable from anywhere. Add following to .bashrc. Replace <..> with full path to the folder containing your binary created in step 1.
+```
+export PATH=$PATH:</full/path/to/binary>
+```
+ 
 # Usage
-`./main help` will display help menu. 
-
-## To be added
-- [ ] Search using description.
-- [x] Set at jobs for notifications.
-- [ ] Better UI?
+`godo help` will display help menu. 
 
 ## Made with
 https://github.com/fatih/color
