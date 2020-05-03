@@ -51,7 +51,7 @@ func (t *Tasks) Remove(Id int) {
 	writeDb(t)
 }
 
-//Schedules task to at job
+//ScheduleTask schedules a remainder using at job
 func (t *Tasks) ScheduleTask(Id int, dateTime string) error {
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	cyan := color.New(color.FgCyan).SprintFunc()
@@ -98,13 +98,13 @@ func (t *Tasks) GetTask(Id int) *Task {
 }
 
 //SetComplete flag of id
-func (t *Tasks) SetComplete(Id int) {
+func (t *Tasks) SetCompleted(Id int) {
 	task := t.GetTask(Id)
 	task.Completed = true
 	writeDb(t)
 }
 
-//Pending number of tasks
+//Pending pending number of tasks
 func (t *Tasks) Pending() int {
 	n := 0
 	for _, v := range *t {
@@ -115,18 +115,18 @@ func (t *Tasks) Pending() int {
 	return n
 }
 
-func (t *Tasks) ListPendingTasks() {
-	checkString := "[ ]"
-	yellow := color.New(color.FgYellow).SprintFunc()
-	magenta := color.New(color.FgMagenta).SprintFunc()
+//ListPendingTasks Gives pending Tasks
+func (t *Tasks) ListPendingTasks() Tasks {
+	var tasks Tasks
 	for _, v := range *t {
 		if !v.Completed {
-			fmt.Printf("%d : %s %s %s\n", v.Id, yellow(checkString), magenta(v.Created), v.Description)
+			tasks = append(tasks, v)
 		}
 	}
+	return tasks
 }
 
-//GetLastId
+//GetLastId 
 func (t *Tasks) GetLastId() int {
 	totalTasks := len(*t)
 	if totalTasks <= 0 {
@@ -141,27 +141,23 @@ func (t *Tasks) GetLastId() int {
 	return id
 }
 
-func ReadDb() Tasks {
+//ReadDb reads and returns Tasks
+func ReadDb() (Tasks, error) {
 	dbFile, err := os.Open(dbFilePath())
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	defer dbFile.Close()
 	byteValue, err := ioutil.ReadAll(dbFile)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if len(byteValue) <= 0 {
-		return nil
+		return nil, err
 	}
 	var tasks Tasks
 	err = json.Unmarshal(byteValue, &tasks)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return nil, err
 	}
-	return tasks
+	return tasks, nil
 }
 
 func writeDb(tasks *Tasks) {

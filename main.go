@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/fatih/color"
 	"github.com/shivamanipatil/GoTodo/taskmanager"
@@ -13,6 +13,7 @@ var (
 	magenta = color.New(color.FgMagenta).SprintFunc()
 	cyan    = color.New(color.FgCyan).SprintFunc()
 	white   = color.New(color.FgHiWhite).SprintFunc()
+	red     = color.New(color.FgHiRed).SprintFunc()
 )
 
 func drawTable(tasks *taskmanager.Tasks) {
@@ -50,70 +51,93 @@ func helpMenu() {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Incorrect set of args")
+	flag.CommandLine.SetOutput(os.Stdout)
+	//Subcommands
+
+	// 1)CRUD
+	addCommand := flag.NewFlagSet("add", flag.ExitOnError)
+	delCommand := flag.NewFlagSet("delete", flag.ExitOnError)
+	//getCommand := flag.NewFlagSet("get", flag.ExitOnError)
+	//updateCommand := flag.NewFlagSet("update", flag.ExitOnError)
+	// 2)Set Completed
+	completeCommand := flag.NewFlagSet("completed", flag.ExitOnError)
+	// 3)Schedule
+	scheduleCommand := flag.NewFlagSet("scheduleAt", flag.ExitOnError)
+
+	//Flags
+	descriptionPtr := addCommand.String("desc", "", "Description of task. (Required)")
+	idDPtr := delCommand.Int("id", -1, "id of task to be deleted. (Required)")
+	idCPtr := completeCommand.Int("id", -1, "id of task to be deleted. (Required)")
+	idSPtr := scheduleCommand.Int("id", -1, "id of task to be deleted. (Required)")
+	time := scheduleCommand.String("time", "", "time at which notification should be sent.(required")
+	date := scheduleCommand.String("date", "", "date at which notification should be sent.(required")
+
+	flag.CommandLine.SetOutput(os.Stdout)
+	tasks, err := taskmanager.ReadDb()
+	if err != nil {
+		fmt.Println(red(err))
 		os.Exit(1)
 	}
-	commandName := os.Args[1]
-	tasks := taskmanager.ReadDb()
-
-	if commandName == "help" {
+	if len(os.Args) < 2 {
+		fmt.Println(red("Enter subcommand!"))
+		os.Exit(1)
+	}
+	switch os.Args[1] {
+	case "help":
 		helpMenu()
-		os.Exit(0)
-	} else if commandName == "list" {
-		if tasks == nil {
-			fmt.Println("No tasks")
-			os.Exit(0)
-		}
-		drawTable(&tasks)
-	} else if commandName == "pending" {
-		fmt.Println((&tasks).Pending())
-
-	} else if commandName == "listPending" {
-		(&tasks).ListPendingTasks()
-	} else {
-
-		if len(os.Args) < 3 {
-			fmt.Println("Missing arguments")
+	case "add":
+		addCommand.Parse(os.Args[2:])
+		if *descriptionPtr == "" {
+			fmt.Println(red("Give description!"))
+			addCommand.PrintDefaults()
 			os.Exit(1)
 		}
-		arg := os.Args[2]
-		switch commandName {
-		case "add":
-			description := arg
-			(&tasks).Add(description)
-		case "completed":
-			id, err := strconv.Atoi(arg)
-			if err != nil {
-				fmt.Println("Incorrect args")
-				os.Exit(1)
-			}
-			(&tasks).SetComplete(id)
-		case "delete":
-			id, err := strconv.Atoi(arg)
-			if err != nil {
-				fmt.Println("Incorrect args")
-				os.Exit(1)
-			}
-			(&tasks).Remove(id)
-		case "schedule":
-			if len(os.Args) < 4 {
-				fmt.Println("Enter correct args")
-				os.Exit(1)
-			}
-			id, err := strconv.Atoi(arg)
-			if err != nil {
-				fmt.Println("Incorrect args")
-				os.Exit(1)
-			}
-			time := os.Args[3]
-			date := os.Args[4]
-			err = (&tasks).ScheduleTask(id, time+" "+date)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		(&tasks).Add(*descriptionPtr)
+	case "delete":
+		delCommand.Parse(os.Args[2:])
+		if *idDPtr == -1 {
+			fmt.Println(red("Give id!"))
+			delCommand.PrintDefaults()
+			os.Exit(1)
 		}
+		(&tasks).Remove(*idDPtr)
+	case "completed":
+		completeCommand.Parse(os.Args[2:])
+		if *idCPtr == -1 {
+			fmt.Println(red("Give id!"))
+			completeCommand.PrintDefaults()
+			os.Exit(1)
+		}
+		(&tasks).SetCompleted(*idCPtr)
+	case "list":
+		drawTable(&tasks)
+	case "pending":
+		fmt.Println((&tasks).Pending())
+	case "listPending":
+		pendingTasks := (&tasks).ListPendingTasks()
+		drawTable(&pendingTasks)
+	case "scheduleAt":
+		scheduleCommand.Parse(os.Args[2:])
+
+		if (*time) == "" || (*date) == "" {
+			fmt.Println(red("Provide time and date!"))
+			scheduleCommand.PrintDefaults()
+			os.Exit(1)
+		}
+		if *idSPtr == -1 {
+			fmt.Println(red("Give id!"))
+			scheduleCommand.PrintDefaults()
+			os.Exit(1)
+		}
+		err := (&tasks).ScheduleTask(*idSPtr, (*time)+" "+(*date))
+		if err != nil {
+			fmt.Println(err)
+			scheduleCommand.PrintDefaults()
+			os.Exit(1)
+		}
+	default:
+		fmt.Println(red("Incorrect command\n Use help subcommand for usage"))
+		os.Exit(1)
 	}
 
 }
